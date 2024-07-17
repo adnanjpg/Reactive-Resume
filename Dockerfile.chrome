@@ -1,1 +1,1 @@
-FROM kasmweb/chromium
+FROM kasmweb/chromium:1.14.0
