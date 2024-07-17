@@ -97,3 +97,17 @@ A passion project by [Amruth Pillai](https://www.amruthpillai.com/)
     <img src="https://opensource.nyc3.cdn.digitaloceanspaces.com/attribution/assets/PoweredByDO/DO_Powered_by_Badge_blue.svg" width="200px">
   </a>
 </p>
+
+## Self deploy
+
+The app needs 3 external docker images, postgres, minio and browserless, and you need to build the app's docker image. They're all contained in [tools/compose/prod.yml](tools/compose/prod.yml) file. First, you need to configure .env file. For a quickstart, you can just copy the `.env.example` file and run the app, however, it's recommended to change the values to your own. Copy the file with the following command:
+
+```bash
+cp .env.prod.example .env
+```
+
+You can deploy the app with the following command:
+
+```bash
+docker compose -f tools/compose/prod.yml --env-file .env -p reactive-resume up -d
+```
