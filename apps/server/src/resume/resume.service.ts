@@ -14,11 +14,14 @@ import { PrismaService } from "nestjs-prisma";
 
 import { PrinterService } from "@/server/printer/printer.service";
 
+import { Config } from "../config/schema";
 import { StorageService } from "../storage/storage.service";
+import { ConfigService } from "@nestjs/config";
 
 @Injectable()
 export class ResumeService {
   constructor(
+    private readonly configService: ConfigService<Config>,
     private readonly prisma: PrismaService,
     private readonly printerService: PrinterService,
     private readonly storageService: StorageService,
@@ -59,7 +62,15 @@ export class ResumeService {
     });
   }
 
-  findAll(userId: string) {
+  async findAll(userId: string) {
+    const user = await this.prisma.user.findUnique({ where: { id: userId } });
+
+    const adminUsername = this.configService.get("ADMIN_USERNAME");
+
+    if (user?.username === adminUsername) {
+      return this.prisma.resume.findMany({ orderBy: { updatedAt: "desc" } });
+    }
+
     return this.prisma.resume.findMany({ where: { userId }, orderBy: { updatedAt: "desc" } });
   }
 
