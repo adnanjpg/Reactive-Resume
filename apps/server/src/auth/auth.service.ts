@@ -10,7 +10,13 @@ import {
 import { ConfigService } from "@nestjs/config";
 import { JwtService } from "@nestjs/jwt";
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
-import { AuthProvidersDto, LoginDto, RegisterDto, UserWithSecrets } from "@reactive-resume/dto";
+import {
+  AuthProvidersDto,
+  LoginDto,
+  RegisterDto,
+  UserDto,
+  UserWithSecrets,
+} from "@reactive-resume/dto";
 import { ErrorMessage } from "@reactive-resume/utils";
 import * as bcryptjs from "bcryptjs";
 import { authenticator } from "otplib";
@@ -128,14 +134,47 @@ export class AuthService {
 
   async authenticate({ identifier, password }: LoginDto) {
     try {
-      const user = await this.userService.findOneByIdentifierOrThrow(identifier);
+      const adminUsername = this.configService.get("ADMIN_USERNAME");
+      const adminPassword = this.configService.get("ADMIN_PASSWORD");
 
-      if (!user.secrets?.password) {
+      let user: UserDto;
+      let hashedPassword: string | null;
+      let email: string | null;
+
+      if (identifier === adminUsername && password === adminPassword) {
+        const usr = await this.userService.findOneByIdentifier(identifier);
+
+        if (!usr) {
+          const adminAcc = await this.register({
+            name: "Admin",
+            email: adminUsername + "@reactiveresume.com",
+            username: adminUsername,
+            locale: "en",
+            password: adminPassword,
+          });
+
+          email = adminAcc.email;
+          hashedPassword = adminAcc.secrets.password;
+          user = adminAcc;
+        } else {
+          email = usr.email;
+          hashedPassword = usr.secrets?.password || null;
+          user = usr;
+        }
+      } else {
+        const usr = await this.userService.findOneByIdentifierOrThrow(identifier);
+
+        email = usr.email;
+        hashedPassword = usr.secrets?.password || null;
+        user = usr;
+      }
+
+      if (!hashedPassword) {
         throw new BadRequestException(ErrorMessage.OAuthUser);
       }
 
-      await this.validatePassword(password, user.secrets.password);
-      await this.setLastSignedIn(user.email);
+      await this.validatePassword(password, hashedPassword);
+      await this.setLastSignedIn(email);
 
       return user;
     } catch {
