@@ -17,6 +17,6 @@ run:
   chrome:
     image: Dockerfile.chrome
   minio:
-    image: Dockerfile.minio
     command:
       - server /data
+    image: Dockerfile.minio
