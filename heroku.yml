@@ -15,8 +15,9 @@ build:
 run:
   web: dumb-init pnpm run start
   chrome:
-    image: ghcr.io/browserless/chromium:latest
+    command:
+    image: Dockerfile.chrome
   minio:
-    image: minio/minio
+    image: Dockerfile.minio
     command:
       - server /data
