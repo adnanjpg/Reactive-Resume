@@ -1,4 +1,6 @@
 setup:
+  config:
+    env_file: .env
   addons:
     - plan: heroku-postgresql:hobby-dev
       as: DATABASE
@@ -22,41 +24,3 @@ run:
     command: server /data
     ports:
       - "9000:9000"
-
-env:
-  PORT: 3000
-  NODE_ENV: production
-
-  # -- URLs --
-  PUBLIC_URL: ${PUBLIC_URL}
-  STORAGE_URL: ${STORAGE_URL}
-
-  # -- Printer (Chrome) --
-  CHROME_TOKEN: ${CHROME_TOKEN}
-  CHROME_URL: ${CHROME_URL}
-
-  # -- Auth --
-  ACCESS_TOKEN_SECRET: ${ACCESS_TOKEN_SECRET}
-  REFRESH_TOKEN_SECRET: ${REFRESH_TOKEN_SECRET}
-
-  # -- Emails --
-  MAIL_FROM: ${MAIL_FROM}
-
-  # -- Storage (Minio) --
-  STORAGE_ENDPOINT: ${STORAGE_ENDPOINT}
-  STORAGE_PORT: ${STORAGE_PORT}
-  STORAGE_REGION: ${STORAGE_REGION}
-  STORAGE_BUCKET: ${STORAGE_BUCKET}
-  STORAGE_ACCESS_KEY: ${STORAGE_ACCESS_KEY}
-  STORAGE_SECRET_KEY: ${STORAGE_SECRET_KEY}
-  STORAGE_USE_SSL: ${STORAGE_USE_SSL}
-  STORAGE_SKIP_BUCKET_CHECK: ${STORAGE_SKIP_BUCKET_CHECK}
-
-  # -- Optional Environment Variables --
-  # CROWDIN_PROJECT_ID:
-  # CROWDIN_PERSONAL_TOKEN:
-  # DISABLE_SIGNUPS: false
-  # DISABLE_EMAIL_AUTH: false
-  # GITHUB_CLIENT_ID: github_client_id
-  # GITHUB_CLIENT_SECRET: github_client_secret
-  # GITHUB_CALLBACK_URL
