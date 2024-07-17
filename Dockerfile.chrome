@@ -1,1 +1,1 @@
-FROM chromium:latest
+FROM kasmweb/chromium
