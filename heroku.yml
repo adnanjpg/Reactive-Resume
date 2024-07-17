@@ -9,14 +9,10 @@ setup:
 
 build:
   docker:
-    web:
-      dockerfile: ./Dockerfile
+    web: ./Dockerfile
+    chrome: ./Dockerfile.chrome
+    minio: ./Dockerfile.minio
 
 run:
   web: dumb-init pnpm run start
-  chrome:
-    image: Dockerfile.chrome
-  minio:
-    command:
-      - server /data
-    image: Dockerfile.minio
+  minio: server /data
