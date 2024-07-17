@@ -15,9 +15,8 @@ build:
 run:
   web: dumb-init pnpm run start
   chrome:
-    # command:
     image: Dockerfile.chrome
   minio:
     image: Dockerfile.minio
-    # command:
+    command:
       - server /data
