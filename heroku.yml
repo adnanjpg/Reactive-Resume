@@ -11,16 +11,12 @@ build:
   docker:
     web:
       dockerfile: ./Dockerfile
-      context: .
 
 run:
   web: dumb-init pnpm run start
   chrome:
     image: ghcr.io/browserless/chromium:latest
-    command: ""
-    scale: 1
   minio:
     image: minio/minio
-    command: server /data
-    ports:
-      - "9000:9000"
+    command:
+      - server /data
