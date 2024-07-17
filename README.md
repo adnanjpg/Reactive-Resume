@@ -111,3 +111,19 @@ You can deploy the app with the following command:
 ```bash
 docker compose -f tools/compose/prod.yml --env-file .env -p reactive-resume up -d
 ```
+
+## Heroku deploy
+
+- create the .env file
+```bash
+cp .env.prod.example .env
+```
+
+- transfer the .env file to heroku
+```bash
+bash configenv.sh my-app-name .env
+```
+
+- add the heroku remote following this [guide](https://devcenter.heroku.com/articles/git#creating-a-heroku-remote)
+
+- and then push the code to the heroku remote
