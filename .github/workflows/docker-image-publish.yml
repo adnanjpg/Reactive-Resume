@@ -1,0 +1,103 @@
+name: Create and publish multiple Docker images
+
+on:
+  push:
+    branches: ["release"]
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  build-and-push-images:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+      attestations: write
+      id-token: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Log in to the Container registry
+        uses: docker/login-action@v2
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@v4
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+
+      - name: Build and push Docker image (default)
+        id: push-default
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+
+      - name: Build and push Docker image (minio)
+        id: push-minio
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          file: ./Dockerfile.minio
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}-minio
+          labels: ${{ steps.meta.outputs.labels }}
+
+      - name: Build and push Docker image (chrome)
+        id: push-chrome
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          file: ./Dockerfile.chrome
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}-chrome
+          labels: ${{ steps.meta.outputs.labels }}
+
+      - name: Build and push Docker image (postgres)
+        id: push-postgres
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          file: ./Dockerfile.postgres
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}-postgres
+          labels: ${{ steps.meta.outputs.labels }}
+
+      - name: Generate artifact attestation (default)
+        uses: actions/attest-build-provenance@v1
+        with:
+          subject-name: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:default
+          subject-digest: ${{ steps.push-default.outputs.digest }}
+          push-to-registry: true
+
+      - name: Generate artifact attestation (minio)
+        uses: actions/attest-build-provenance@v1
+        with:
+          subject-name: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:minio
+          subject-digest: ${{ steps.push-minio.outputs.digest }}
+          push-to-registry: true
+
+      - name: Generate artifact attestation (chrome)
+        uses: actions/attest-build-provenance@v1
+        with:
+          subject-name: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:chrome
+          subject-digest: ${{ steps.push-chrome.outputs.digest }}
+          push-to-registry: true
+
+      - name: Generate artifact attestation (postgres)
+        uses: actions/attest-build-provenance@v1
+        with:
+          subject-name: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:postgres
+          subject-digest: ${{ steps.push-postgres.outputs.digest }}
+          push-to-registry: true
