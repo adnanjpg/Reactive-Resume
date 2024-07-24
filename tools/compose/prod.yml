@@ -26,8 +26,8 @@ services:
     image: minio/minio
     restart: unless-stopped
     command: server /data
-    ports:
-      - "9000:9000"
+    # ports:
+    #   - "9000:9000"
     volumes:
       - minio_data:/data
     environment:
@@ -52,8 +52,9 @@ services:
       dockerfile: Dockerfile
     restart: unless-stopped
     ports:
-      - "3000:3000"
-      - "5173:5173"
+      # - "3000:3000"
+      # - "5173:5173"
+      - "80:3000"
     depends_on:
       - postgres
       - minio
