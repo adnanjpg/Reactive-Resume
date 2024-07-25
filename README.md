@@ -112,6 +112,12 @@ You can deploy the app with the following command:
 docker compose -f tools/compose/prod.yml --env-file .env -p reactive-resume up -d
 ```
 
+And then you can trigger hourly db backups with the following command:
+
+```bash
+./init_backups.sh
+```
+
 ## Heroku deploy
 
 - create the .env file
