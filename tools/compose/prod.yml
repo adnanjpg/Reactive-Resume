@@ -31,7 +31,7 @@ services:
     volumes:
       - minio_data:/data
     ports:
-      - "9000:9000"
+      - "${STORAGE_PORT}:${STORAGE_PORT}"
     environment:
       MINIO_ROOT_USER: minioadmin
       MINIO_ROOT_PASSWORD: minioadmin
@@ -48,6 +48,9 @@ services:
       TOKEN: chrome_token
       EXIT_ON_HEALTH_FAILURE: true
       PRE_REQUEST_HEALTH_CHECK: true
+      PORT: ${CHROME_PORT}
+    # ports:
+    #   - "${CHROME_PORT}:${CHROME_PORT}"
     networks:
       - reactive-resume
 
@@ -58,8 +61,8 @@ services:
       dockerfile: Dockerfile
     restart: unless-stopped
     ports:
-      - "3000:3000"
-      - "80:3000"
+      - "${PORT}:${PORT}"
+    #   - "80:${PORT}"
     depends_on:
       - postgres
       - minio
@@ -118,6 +121,21 @@ services:
 
       ADMIN_USERNAME: ${ADMIN_USERNAME}
       ADMIN_PASSWORD: ${ADMIN_PASSWORD}
+    networks:
+      - reactive-resume
+  nginx:
+    image: nginx:latest
+    ports:
+      - "80:80"
+    volumes:
+      # - ./nginx.template:/etc/nginx/nginx.template
+      - ./nginx.conf:/etc/nginx/nginx.conf
+    environment:
+      - SERVER_NAME=${PUBLIC_DOMAIN}
+      - APP_PORT=${PORT}
+      - MINIO_PORT=${STORAGE_PORT}
+    # ideally, nginx should get its values from the environment variables. this can be done by putting the config in a .template file and converting it to the actual config file by filling in the values using envsubst. but the problem is, envsubst is also placing the values of nginx variables in the config file. so, we need a way to solve this, in some answers passing the names of the variables to envsubst is suggested, but it doesn't work. so, for now we're gonna just hardcode the values in the config file.
+    # entrypoint: /bin/bash -c "envsubst '$APP_PORT,$SERVER_NAME' < /etc/nginx/nginx.template > /etc/nginx/nginx.conf && nginx -g 'daemon off;'"
     networks:
       - reactive-resume
 

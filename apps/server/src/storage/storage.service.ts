@@ -115,9 +115,11 @@ export class StorageService implements OnModuleInit {
     filename: string = createId(),
   ) {
     const extension = type === "resumes" ? "pdf" : "jpg";
+    const publicUrl = this.configService.getOrThrow<string>("PUBLIC_URL");
     const storageUrl = this.configService.getOrThrow<string>("STORAGE_URL");
     const filepath = `${userId}/${type}/${filename}.${extension}`;
-    const url = `${storageUrl}/${filepath}`;
+    // const url = `${storageUrl}/${filepath}`;
+    const url = `https://storage.sscfsmvu.site/default/${filepath}`;
     const metadata =
       extension === "jpg"
         ? { "Content-Type": "image/jpeg" }
