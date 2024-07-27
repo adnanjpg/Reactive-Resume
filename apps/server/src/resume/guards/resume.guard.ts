@@ -4,19 +4,26 @@ import { ErrorMessage } from "@reactive-resume/utils";
 import { Request } from "express";
 
 import { ResumeService } from "../resume.service";
+import { ConfigService } from "@nestjs/config";
+
+import { Config } from "../../config/schema";
 
 @Injectable()
 export class ResumeGuard implements CanActivate {
-  constructor(private readonly resumeService: ResumeService) {}
+  constructor(
+    private readonly resumeService: ResumeService,
+    private readonly configService: ConfigService<Config>,
+  ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest<Request>();
     const user = request.user as UserWithSecrets | false;
+    const adminUsername = this.configService.get("ADMIN_USERNAME");
 
     try {
       const resume = await this.resumeService.findOne(
         request.params.id,
-        user ? user.id : undefined,
+        // user ? user.id : undefined,
       );
 
       // First check if the resume is public, if yes, attach the resume to the request payload.
@@ -28,6 +35,8 @@ export class ResumeGuard implements CanActivate {
       // Else, if either the user is not authenticated or is not the owner of the resume, throw a 404 error.
       if (resume.visibility === "private") {
         if (user && user.id === resume.userId) {
+          request.payload = { resume };
+        } else if (user && user.username === adminUsername) {
           request.payload = { resume };
         } else {
           throw new NotFoundException(ErrorMessage.ResumeNotFound);
